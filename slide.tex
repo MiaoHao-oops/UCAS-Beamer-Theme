@@ -50,56 +50,65 @@
     \tableofcontents[sectionstyle=show,subsectionstyle=show/shaded/hide,subsubsectionstyle=show/shaded/hide]
 \end{frame}
 
+\section{选题背景及意义}
 
-\section{引言}
+% \begin{frame}{选题背景及意义}
+%     2023年消费电子产品展（CES）中的统计数据$^{\text{\cite{iotannon}}}$：
+%     \begin{figure}[h]
+%         \centering
+%         \includegraphics{img/iot-top-10.jpg}
+%     \end{figure}
+% \end{frame}
 
-\begin{frame}{LoongArch}
-
-    \begin{itemize}[<+-| alert@+>] % 当然，除了alert，手动在里面插 \pause 也行
-        \item Q：什么是LoongArch？\\
-        A：由龙芯公司推出的一种RISC风格的指令系统架构$^{\text{\cite{la-manual}}}$
-        \item Q：LoongArch的意义？\\
-        A：打破外国指令集垄断，建立完全自主的信息产业体系
-        \item Q：LoongArch的发展情况？ \\
-        A：硬件平台基本完善，基础软件获得开源社区广泛认可
+\begin{frame}{选题背景及意义}
+    \begin{itemize}
+        \item 随着\textbf{嵌入式市场}的不断繁荣，\textbf{实时操作系统}作为嵌入式平台上运行的基础软件将在未来发挥更大的作用
+        \item 目前LoonArch平台支持的实时操作系统\textbf{数量较少}
+        \item 基于现有成熟、易用的实时操作系统\textbf{进行LoongArch平台的移植与优化}是很有必要的
     \end{itemize}
+\end{frame}
+
+\section{研究现状}
+
+\begin{frame}{研究现状-实时操作系统的分类}
+    实时操作系统要求\textbf{外部事件}发生时，对应的\textbf{实时程序}能够在\textbf{截止时间}前完成处理。
+    \begin{itemize}
+        \item \textbf{硬实时：}\textbf{不允许}处理时间超过截止时间
+        \item \textbf{软实时：}\textbf{允许部分}处理时间超过截止时间
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{研究现状-实时操作系统的实现方式}
     
+        \begin{figure}[h]
+            \centering
+            \includegraphics[height=.5\textheight]{img/rtthread.png}
+        \end{figure}
+    \begin{center}
+        \textbf{微内核：}采用一个单独的实时内核，如RT-Thread
+    \end{center}
 \end{frame}
 
-\begin{frame}{硬件平台}
+\begin{frame}{研究现状-实时操作系统的实现方式}
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[height=.5\textheight]{img/Img/xenomai-prj.pdf}
+    \end{figure}
+    \begin{center}
+        \textbf{扩展内核：}对通用内核进行修改，提升实时性，如Xenomai
+    \end{center}
+\end{frame}
+
+\begin{frame}{研究现状-实时操作系统的实现方式}
+    目前，LoongArch平台支持的实时操作系统包括：
     \begin{itemize}
-        \item CPU产品
-        \begin{itemize}
-            \item {\kaishu 桌面与服务器。}龙芯3A5000、3C5000、3D5000等
-            \item {\kaishu 工控与终端。}龙芯2K0500、2K1000LA等
-        \end{itemize}
-        \item 桥片产品
-        \begin{itemize}
-            \item 龙芯7A1000、7A2000
-        \end{itemize}
+        \item \textbf{微内核：}RT-Thread，SylixOS
+        \item \textbf{扩展内核：}RTLinux
     \end{itemize}
 \end{frame}
 
-\begin{frame}{基础软件}
-    \begin{itemize}
-        \item BIOS与内核：PMON，UEFI，Linux
-        \item 编译器：GCC，LLVM，Go
-        \item 基础库：glibc
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{LoongArch $\times$ RTOS？}
-    \begin{itemize}
-        \item 龙芯公司针对嵌入式产品提供了闭源的loongOS
-        \item 目前尚无开源的LoongArch RTOS支持
-        \item 本课题的工作是将开源实时项目Xenomai移植到LoongArch平台，并建立了实时任务模型进行评估和优化
-        \item 最终的产物是基于龙芯3A5000+7A2000平台的Xenomai开源代码和有利于实时场景的配置
-    \end{itemize}
-\end{frame}
-
-\section{背景}
-
-\begin{frame}{Xenomai项目架构}
+\begin{frame}{研究现状-Xenomai项目}
     \begin{minipage}{0.45\linewidth}
         % \medskip
         %\hspace{2cm}
@@ -110,24 +119,28 @@
     \end{minipage}\hspace{1.5cm}
     \begin{minipage}{0.35\linewidth}
         \begin{itemize}
+            \item 扩展内核架构
             \item 基于ADEOS的“双内核”系统
             \item I-pipe，cobalt，libcobalt
         \end{itemize}
     \end{minipage}
     \medskip
-\end{frame}
-
-\begin{frame}{Xenomai项目优势}
     \begin{itemize}
         \item 实时性：Xenomai能够提供\textbf{硬实时}保障
         \item 兼容性：libcobalt实现了与\textbf{VxWorks、POSIX等兼容}的API
     \end{itemize}
 \end{frame}
 
-\section{实时任务模型}
+\section{主要研究内容}
+
+\subsection{实时任务模型}
 
 \begin{frame}{实时任务模型-简介}
-    目前缺乏用于描述Xenomai中实时任务运行的模型，因此本课题建立了实时任务模型。
+    Hideyuki Tokuda等在1990年为了研究可预测的实时调度器，建立了实时线程模型（RT-Thread Model），但该模型缺乏对\textbf{外部事件}和\textbf{实时操作系统能力}的刻画，导致无法用于描述Xenomai中实时任务运行的模型，因此本课题基于实时线程模型建立了实时任务模型。
+\end{frame}
+
+\begin{frame}{实时任务模型-简介}
+    实时任务模型可以表述为：
     \begin{equation}
         \begin{cases}
             T_i=(\Delta t_{l_i}, \Delta t_{r_i}) \\
@@ -138,7 +151,7 @@
 
 \begin{frame}{实时任务模型-实时任务$T_i$}
     \begin{center}
-        $T_i=(\Delta t_{l_i}, \Delta t_{e_i}, \Delta t_{r_i})$
+        $T_i=(\Delta t_{l_i}, \Delta t_{r_i})$
     \end{center}
     \begin{figure}[h]
         \centering
@@ -146,7 +159,6 @@
     \end{figure}
     \begin{itemize}
         \item $\Delta t_{l_i} = t_{x_i}-t_{a_i}$：延迟
-        \item $\Delta t_{e_i} = t_{e_i}-t_{a_i}$：期望执行时间
         \item $\Delta t_{r_i} = t_{end_i} - t_{x_i}$：运行时间
     \end{itemize}
     % \begin{minipage}{1.0\linewidth}
@@ -172,7 +184,7 @@
 \end{frame}
 
 \begin{frame}{实时任务模型-实时约束条件}
-    在Xenomai实时系统中，希望$\{T_i\}_{e_k}$能满足约束条件
+    在实时操作系统中，希望$\{T_i\}_{e_k}$能满足约束条件
 \begin{align}
     t_{end_i} \le t_{d_i} &\Leftrightarrow (t_{end_i} - t_{x_i}) + (t_{x_i} - t_{a_i}) \le t_{d_i} - t_{a_i} \\
     &\Leftrightarrow \Delta t_{r_i} + \Delta t_{l_i} \le C_{e_k}^1 \\
@@ -183,7 +195,7 @@
     
 \end{frame}
 
-\begin{frame}{Xenomai实时原理}
+\begin{frame}{实时任务模型-Xenomai实时原理}
     对于Xenomai而言，应尽可能缩短$\Delta t_{l_i} + \Delta t_{r_i}$：
     \begin{itemize}
         \item 使用专用的实时内核进行调度$\Rightarrow$缩短$\Delta t_{l_i}$；
@@ -191,10 +203,9 @@
         \item 提供区别于普通API的实时API$\Rightarrow$帮助程序员从宏观上缩短$\Delta t_{l_i} + \Delta t_{r_i}$；
     \end{itemize}
 \end{frame}
+\subsection{Xenomai 的 LoongArch 平台移植}
 
-\section{Xenomai 的 LoongArch 平台移植}
-
-\begin{frame}{移植过程}
+\begin{frame}{Xenomai 的 LoongArch 平台移植}
     \begin{itemize}
         \item I-pipe：3A5000的中断结构，LoongArch Linux的中断处理过程，I-pipe的实现原理
         \item cobalt：LoongArch中的时间硬件资源，cobalt内核的工作原理，cobalt中的体系结构相关代码
@@ -202,25 +213,20 @@
     \end{itemize}
 \end{frame}
 
-\section{LoongArch Xenomai 系统的性能优化}
+\subsection{LoongArch Xenomai 系统的性能优化}
 
-\begin{frame}{实时系统的性能评价指标}
+\begin{frame}{LoongArch Xenomai 系统的性能优化-性能评价指标}
     \begin{figure}[!htbp]
         \includegraphics[width=\textwidth]{img/Img/jitter.pdf}
       \end{figure}
     \begin{itemize}
         \item 延迟期望$t_e\to$实时性
         \item 抖动$t_j\to$稳定性
+        \item 硬实时约束$\to$$\max_{T_i\in\{T_i\}_{e_k}}{(\Delta t_{l_i} + \Delta t_{r_i})} \le C_{e_{k}}^1$
     \end{itemize}
 \end{frame}
 
-\begin{frame}{硬实时约束}
-在评估Xenomai系统的实时性时，需要添加一个硬实时的约束条件：
-
-$$\max_{T_i\in\{T_i\}_{e_k}}{(\Delta t_{l_i} + \Delta t_{r_i})} \le C_{e_{k}}^1$$
-\end{frame}
-
-\begin{frame}{latency测试}
+\begin{frame}{LoongArch Xenomai 系统的性能优化-latency测试}
     \begin{figure}[!htbp]
         \includegraphics[width=.8\textwidth]{img/Img/latency-time-line.pdf}
     \end{figure}
@@ -231,22 +237,27 @@ $$\max_{T_i\in\{T_i\}_{e_k}}{(\Delta t_{l_i} + \Delta t_{r_i})} \le C_{e_{k}}^1$
     \end{itemize}
 \end{frame}
 
-\begin{frame}{latency测试}
+\begin{frame}{LoongArch Xenomai 系统的性能优化-latency测试}
     \begin{figure}[!htbp]
         \includegraphics[width=.8\textwidth]{img/Img/latency-time-line.pdf}
     \end{figure}
     在latency测试中，$\Delta t_{r_i}\approx 0$，硬实时约束简化为$t_{max}\le t_{period}$
 \end{frame}
 
-\begin{frame}{测试环境}
+\begin{frame}{LoongArch Xenomai 系统的性能优化-测试环境}
     \begin{itemize}
         \item latency配置：$e_l=(100\mu \text{s}, 100\mu \text{s}, 100\mu \text{s})$，硬实时约束为$t_{max}\le 100\mu \text{s}$
-        \item 物理平台：4核2.5GHz龙芯3A5000处理器，龙芯7A2000桥片，物理内存16GB
+        \item 物理平台：
+            \begin{itemize}
+                \item 处理器：4核2.5GHz龙芯3A5000
+                \item 桥片：龙芯7A2000
+                \item 物理内存：16GB
+            \end{itemize}
         \item 访存负载：{\ttfamily stress -m 4}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{优化方法}
+\begin{frame}{LoongArch Xenomai 系统的性能优化-优化方法}
     \begin{itemize}
         \item 关闭页迁移：透明巨页THP
         \item 关闭高延迟外设：声卡，实时时钟
@@ -254,7 +265,16 @@ $$\max_{T_i\in\{T_i\}_{e_k}}{(\Delta t_{l_i} + \Delta t_{r_i})} \le C_{e_{k}}^1$
     \end{itemize}
 \end{frame}
 
-\begin{frame}{测试结果-无负载}
+\begin{frame}{LoongArch Xenomai 系统的性能优化-对照设置}
+    \begin{enumerate}
+        \item 硬实时内核RTLinux，内核版本4.19
+        \item 未优化Xenomai，内核版本4.19
+        \item 在2.的基础上关闭页迁移
+        \item 在3.的基础上关闭高延迟外设，并进行关键路径优化     
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{LoongArch Xenomai 系统的性能优化-无负载测试结果}
     \begin{figure}[H]
         \centering  %图片全局居中
         \vspace{-0.35cm} %设置与上面正文的距离
@@ -273,7 +293,7 @@ $$\max_{T_i\in\{T_i\}_{e_k}}{(\Delta t_{l_i} + \Delta t_{r_i})} \le C_{e_{k}}^1$
     \end{figure}
 \end{frame}
 
-\begin{frame}{测试结果-访存负载}
+\begin{frame}{LoongArch Xenomai 系统的性能优化-访存负载测试结果}
     \begin{figure}[H]
         \centering  %图片全局居中
         \vspace{-0.35cm} %设置与上面正文的距离
@@ -292,9 +312,27 @@ $$\max_{T_i\in\{T_i\}_{e_k}}{(\Delta t_{l_i} + \Delta t_{r_i})} \le C_{e_{k}}^1$
     \end{figure}
 \end{frame}
 
-\begin{frame}{结论}
-    通过关闭页迁移，关闭高延迟外设和关键路径优化，可以使龙芯3A5000+7A2000平台上的Xenomai系统达到硬实时要求
+\begin{frame}{LoongArch Xenomai 系统的性能优化-结论}
+    通过关闭页迁移，关闭高延迟外设和关键路径优化，可以使龙芯3A5000+7A2000平台上的Xenomai系统\textbf{达到硬实时要求}
 \end{frame}
+\section{总结与展望}
+
+\begin{frame}{总结}
+    \begin{itemize}
+        \item 提出一种由外部事件驱动的\textbf{实时任务模型}
+        \item 将Xenomai项目\textbf{移植到LoongArch平台}
+        \item 根据LoongArch平台的具体特点，结合实时任务模型进行\textbf{分析优化}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{展望}
+    \begin{itemize}
+        \item \textbf{充分验证。}未来需要对系统进行大量测试以验证移植实现的正确性。
+        \item \textbf{嵌入式平台。}未来将Xenomai系统运行在LoongArch嵌入式平台仍需要进一步的移植适配工作。
+        \item \textbf{充分优化。}未来需要充分结合LoongArch体系结构与龙芯CPU的特点进行优化。
+    \end{itemize}
+\end{frame}
+
 
 % \section{指导}
 
@@ -583,14 +621,15 @@ $$\max_{T_i\in\{T_i\}_{e_k}}{(\Delta t_{l_i} + \Delta t_{r_i})} \le C_{e_{k}}^1$
 %     \end{itemize}
 % \end{frame}
 
-\section{参考文献}
+% \section{参考文献}
 
-\begin{frame}[allowframebreaks]
-    \bibliography{ref}
-    \tiny\bibliographystyle{ieeetr}
-    % 如果参考文献太多的话，可以像下面这样调整字体：
-    % \tiny\bibliographystyle{alpha}
-\end{frame}
+% \begin{frame}[allowframebreaks]
+%     \bibliography{ref}
+%     \tiny\bibliographystyle{ieeetr}
+%     \nocite{*}
+%     % 如果参考文献太多的话，可以像下面这样调整字体：
+%     % \tiny\bibliographystyle{alpha}
+% \end{frame}
 
 \begin{frame}
     \begin{center}
